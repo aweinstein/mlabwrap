@@ -1,6 +1,22 @@
 .. -*- mode: rst; coding: utf-8; -*-
 
 =================
+Note
+=================
+
+This is a copy of mlabwrap v1.1-pre patched as described here:
+http://sourceforge.net/mailarchive/message.php?msg_id=27312822
+
+This patch fixes the error
+
+mlabraw.cpp:225: *error*: invalid conversion from ‘const mwSize*’ to ‘const
+int*’
+
+Also note that in Ubuntu you need to 
+
+sudo apt-get install csh
+
+=================
 mlabwrap v1.1-pre
 =================
 :copyright: 2003-2009 Alexander Schmolck and Vivek Rathod
