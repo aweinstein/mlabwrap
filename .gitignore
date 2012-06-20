@@ -1,0 +1,5 @@
+*.pyc
+build/lib.linux-i686-2.7/mlabrawmodule.so
+build/temp.linux-i686-2.7/
+setup.py.orig
+setup.py.rej
