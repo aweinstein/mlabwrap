@@ -9,11 +9,13 @@ __version__ = '1.1'
 ##### VARIABLES YOU MIGHT HAVE TO CHANGE FOR YOUR INSTALLATION #####
 ##### (if setup.py fails to guess the right values for them)   #####
 ####################################################################
-MATLAB_COMMAND = 'matlab'   # specify a full path if not in PATH
-MATLAB_VERSION = None       # e.g: 6 (one of (6, 6.5, 7, 7.3))
+from distutils.version import LooseVersion
+
+MATLAB_COMMAND = '/home/ajw/local/MATLAB/bin/matlab'   # specify a full path if not in PATH
+MATLAB_VERSION = None      # e.g: 6 (one of (6, 6.5, 7, 7.3))
                             #      7.3 includes later versions as well
-MATLAB_DIR= None            # e.g: '/usr/local/matlab'; 'c:/matlab6'
-PLATFORM_DIR=None           # e.g: 'glnx86'; r'win32/microsoft/msvc60'
+MATLAB_DIR= '/home/ajw/local/MATLAB'            # e.g: '/usr/local/matlab'; 'c:/matlab6'
+PLATFORM_DIR= 'glnx86'           # e.g: 'glnx86'; r'win32/microsoft/msvc60'
 EXTRA_COMPILE_ARGS=None     # e.g: ['-G']
 
 # hopefully these 3 won't need modification
@@ -96,7 +98,7 @@ PLEASE MAKE SURE matlab IS IN YOUR PATH!
 ''' % (" ".join(cmd), error))
         fh = open(param_fname)
         ver, pth, platform = iter(fh)
-        return (float(re.match(r'\d+.\d+',ver).group()),
+        return (LooseVersion(re.match(r'\d+.\d+',ver).group()),
                 pth.rstrip(), platform.rstrip().lower())
     finally:
         if fh: fh.close()
@@ -110,7 +112,7 @@ WINDOWS SPECIFIC ISSUE? Unable to remove %s; please delete it manually
 
 # windows
 WINDOWS=sys.platform.startswith('win')
-if None in (MATLAB_VERSION, MATLAB_DIR, PLATFORM_DIR):
+if MATLAB_VERSION is None or  MATLAB_DIR is None or PLATFORM_DIR is None:
     cmd = [MATLAB_COMMAND, "-nodesktop",  "-nosplash"]
     if WINDOWS:
         extra_args = {}
@@ -129,6 +131,7 @@ if None in (MATLAB_VERSION, MATLAB_DIR, PLATFORM_DIR):
         queried_version, queried_dir, queried_platform_dir = matlab_params(cmd, WINDOWS, extra_args)
     else:
         queried_version, queried_dir, queried_platform_dir = ["WHATEVER"]*3
+    print queried_version, queried_dir, queried_platform_dir
     MATLAB_VERSION = MATLAB_VERSION or queried_version
     MATLAB_DIR = MATLAB_DIR or queried_dir
     PLATFORM_DIR = PLATFORM_DIR or queried_platform_dir
@@ -141,7 +144,7 @@ if WINDOWS:
 else:
     EXTENSION_NAME = 'mlabrawmodule'
     if not MATLAB_LIBRARIES:
-        if MATLAB_VERSION >= 6.5:
+        if MATLAB_VERSION >= LooseVersion('6.5'):
             MATLAB_LIBRARIES = 'eng mx mat ut'.split()
         else:
             MATLAB_LIBRARIES = 'eng mx mat mi ut'.split()
@@ -150,8 +153,7 @@ else:
         EXTRA_COMPILE_ARGS = EXTRA_COMPILE_ARGS or ['-G']
 
 
-
-if MATLAB_VERSION >= 7 and not WINDOWS:
+if MATLAB_VERSION >= LooseVersion('7') and not WINDOWS:
     MATLAB_LIBRARY_DIRS = [MATLAB_DIR + "/bin/" + PLATFORM_DIR]
 else:
     MATLAB_LIBRARY_DIRS = [MATLAB_DIR + "/extern/lib/" + PLATFORM_DIR]
@@ -164,9 +166,10 @@ if WINDOWS:
         print "Not using Visual C++; fiddling paths for Borland C++ compatibility"
         MATLAB_LIBRARY_DIRS = [mld.replace('/','\\') for mld in  MATLAB_LIBRARY_DIRS]
 DEFINE_MACROS=[]
-if MATLAB_VERSION >= 6.5:
+
+if MATLAB_VERSION >= LooseVersion('6.5'):
     DEFINE_MACROS.append(('_V6_5_OR_LATER',1))
-if MATLAB_VERSION >= 7.3:
+if MATLAB_VERSION >= LooseVersion('7.3'):
     DEFINE_MACROS.append(('_V7_3_OR_LATER',1))
 if USE_NUMERIC:
     DEFINE_MACROS.append(('MLABRAW_USE_NUMERIC', 1))
